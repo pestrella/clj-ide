@@ -52,12 +52,38 @@
                     (global-set-key [(shift meta x)] 'smex-major-mode-commands)
                     (smex-major-mode-commands))))
 
+(defun copy-from-osx ()
+  (shell-command-to-string "pbpaste"))
+
+(defun paste-to-osx (text &optional push)
+    (let ((process-connection-type nil))
+      (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
+        (process-send-string proc text)
+        (process-send-eof proc))))
+
+(defun enable-osx-copy-paste()
+  (setq interprogram-cut-function 'paste-to-osx)
+  (setq interprogram-paste-function 'copy-from-osx))
+
+(add-to-list 'multiple-cursors)
+(defun enable-multiple-cursors()
+  (require 'multiple-cursors)
+  (global-set-key (kbd "C-c c") 'mc/edit-lines)
+  (global-set-key (kbd "M-n") 'mc/mark-next-like-this)
+  (global-set-key (kbd "M-p") 'mc/mark-previous-like-this)
+  (global-set-key (kbd "C-c g") 'mc/mark-all-like-this))
+
 (defun customise-editor()
   ;; disable scrollbar and toolbar
   (setq scroll-bar-mode nil)
   (setq tool-bar-mode nil)
+
   ;; truncate long lines
   (setq-default truncate-lines t)
+
+  ;; no backup files
+  (setq make-backup-files nil)
+  (setq auto-save-default nil)
 
   ;; set unicode as default
   (prefer-coding-system       'utf-8)
@@ -65,7 +91,29 @@
   (set-terminal-coding-system 'utf-8)
   (set-keyboard-coding-system 'utf-8)
   (setq default-buffer-file-coding-system 'utf-8)
-  (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING)))
+  (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
+
+  ;; show reverse file paths in name buffer
+  (require 'uniquify)
+  (setq uniquify-buffer-name-style 'reverse)
+
+  ;; no trailing whitespace
+  (add-hook 'before-save-hook 'delete-trailing-whitespace)
+
+  (if (string-equal system-type "darwin")
+      (enable-osx-copy-paste))
+
+  ;; window switching
+  (global-set-key (kbd "S-<right>") 'next-multiframe-window)
+  (global-set-key (kbd "S-<left>") 'previous-multiframe-window)
+
+  (enable-multiple-cursors)
+
+  (global-set-key (kbd "C-c t") 'find-name-dired)
+  (global-set-key (kbd "C-c f") 'rgrep)
+
+
+  )
 
 (add-to-list 'package-list 'sml-modeline)
 (defun show-modeline()
