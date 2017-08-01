@@ -36,45 +36,45 @@
   (cond
    ((not symbol-list)
     (let ((ido-mode ido-mode)
-          (ido-enable-flex-matching
-           (if (boundp 'ido-enable-flex-matching)
-               ido-enable-flex-matching t))
-          name-and-pos symbol-names position)
+	  (ido-enable-flex-matching
+	   (if (boundp 'ido-enable-flex-matching)
+	       ido-enable-flex-matching t))
+	  name-and-pos symbol-names position)
       (unless ido-mode
-        (ido-mode 1)
-        (setq ido-enable-flex-matching t))
+	(ido-mode 1)
+	(setq ido-enable-flex-matching t))
       (while (progn
-               (imenu--cleanup)
-               (setq imenu--index-alist nil)
-               (ido-goto-symbol (imenu--make-index-alist))
-               (setq selected-symbol
-                     (ido-completing-read "Symbol? " symbol-names))
-               (string= (car imenu--rescan-item) selected-symbol)))
+	       (imenu--cleanup)
+	       (setq imenu--index-alist nil)
+	       (ido-goto-symbol (imenu--make-index-alist))
+	       (setq selected-symbol
+		     (ido-completing-read "Symbol? " symbol-names))
+	       (string= (car imenu--rescan-item) selected-symbol)))
       (unless (and (boundp 'mark-active) mark-active)
-        (push-mark nil t nil))
+	(push-mark nil t nil))
       (setq position (cdr (assoc selected-symbol name-and-pos)))
       (cond
        ((overlayp position)
-        (goto-char (overlay-start position)))
+	(goto-char (overlay-start position)))
        (t
-        (goto-char position)))))
+	(goto-char position)))))
    ((listp symbol-list)
     (dolist (symbol symbol-list)
       (let (name position)
-        (cond
-         ((and (listp symbol) (imenu--subalist-p symbol))
-          (ido-goto-symbol symbol))
-         ((listp symbol)
-          (setq name (car symbol))
-          (setq position (cdr symbol)))
-         ((stringp symbol)
-          (setq name symbol)
-          (setq position
-                (get-text-property 1 'org-imenu-marker symbol))))
-        (unless (or (null position) (null name)
-                    (string= (car imenu--rescan-item) name))
-          (add-to-list 'symbol-names name)
-          (add-to-list 'name-and-pos (cons name position))))))))
+	(cond
+	 ((and (listp symbol) (imenu--subalist-p symbol))
+	  (ido-goto-symbol symbol))
+	 ((listp symbol)
+	  (setq name (car symbol))
+	  (setq position (cdr symbol)))
+	 ((stringp symbol)
+	  (setq name symbol)
+	  (setq position
+		(get-text-property 1 'org-imenu-marker symbol))))
+	(unless (or (null position) (null name)
+		    (string= (car imenu--rescan-item) name))
+	  (add-to-list 'symbol-names name)
+	  (add-to-list 'name-and-pos (cons name position))))))))
 
 (defun enable-jump-to-defs ()
   (global-set-key "\C-ci" 'ido-goto-symbol))
@@ -89,32 +89,35 @@
 (defun optimise-smex ()
   ;; optimise smex
   (global-set-key [(meta x)]
-                  (lambda ()
-                    (interactive)
-                    (or (boundp 'smex-cache)
-                        (smex-initialize))
-                    (global-set-key [(meta x)] 'smex)
-                    (smex)))
+		  (lambda ()
+		    (interactive)
+		    (or (boundp 'smex-cache)
+			(smex-initialize))
+		    (global-set-key [(meta x)] 'smex)
+		    (smex)))
   (global-set-key [(shift meta x)]
-                  (lambda ()
-                    (interactive)
-                    (or (boundp 'smex-cache)
-                        (smex-initialize))
-                    (global-set-key [(shift meta x)] 'smex-major-mode-commands)
-                    (smex-major-mode-commands))))
+		  (lambda ()
+		    (interactive)
+		    (or (boundp 'smex-cache)
+			(smex-initialize))
+		    (global-set-key [(shift meta x)] 'smex-major-mode-commands)
+		    (smex-major-mode-commands))))
 
 (defun copy-from-osx ()
   (shell-command-to-string "pbpaste"))
 
 (defun paste-to-osx (text &optional push)
-    (let ((process-connection-type nil))
-      (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
-        (process-send-string proc text)
-        (process-send-eof proc))))
+  (let ((process-connection-type nil))
+    (let ((proc (start-process "pbcopy" "*Messages*" "pbcopy")))
+      (process-send-string proc text)
+      (process-send-eof proc))))
 
 (defun enable-osx-copy-paste ()
   (setq interprogram-cut-function 'paste-to-osx)
   (setq interprogram-paste-function 'copy-from-osx))
+
+(defun osx-dired ()
+  (setq dired-use-ls-dired nil))
 
 (add-to-list 'package-requirements 'multiple-cursors)
 (defun enable-multiple-cursors ()
@@ -152,7 +155,9 @@
   (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
   (if (string-equal system-type "darwin")
-      (enable-osx-copy-paste))
+      (progn
+	(enable-osx-copy-paste)
+	(osx-dired)))
 
   ;; window switching
   (global-set-key (kbd "S-<right>") 'next-multiframe-window)
@@ -192,12 +197,12 @@
   (init-themes))
 
 (defun clj-setup-specs (arg)
-    (interactive "P")
-    (save-buffer)
-    (cider-load-current-buffer)
-    (cider-interactive-eval "(speclj.core/run-specs)")
-    (when arg
-      (cider-switch-to-relevant-repl-buffer nil)))
+  (interactive "P")
+  (save-buffer)
+  (cider-load-current-buffer)
+  (cider-interactive-eval "(speclj.core/run-specs)")
+  (when arg
+    (cider-switch-to-relevant-repl-buffer nil)))
 
 (defun clj-setup-testing ()
   (eval-after-load 'clojure-mode
@@ -244,6 +249,7 @@
 (defun clj-setup ()
   (remove-hook 'clojure-mode-hook 'esk-pretty-fn)
   (add-hook 'cider-mode-hook #'eldoc-mode)
+  (add-hook 'cider-repl-mode-hook #'eldoc-mode)
 
   (clj-setup-completion)
   (clj-setup-testing)
