@@ -79,12 +79,6 @@
 (defun enable-jump-to-defs ()
   (global-set-key "\C-ci" 'ido-goto-symbol))
 
-(add-to-list 'package-requirements 'auto-complete)
-(defun config-autocomplete ()
-  (require 'auto-complete)
-  ;; disable bell sound
-  (setq visible-bell t))
-
 (add-to-list 'package-requirements 'smex)
 (defun optimise-smex ()
   ;; optimise smex
@@ -186,6 +180,10 @@
   (load-theme 'zenburn t)
   (message "for best results `export TERM=xterm-256color`"))
 
+(add-to-list 'package-requirements 'company)
+(defun init-completion ()
+  (global-company-mode))
+
 (add-to-list 'package-requirements 'which-key)
 (defun init-which-key ()
   (require 'which-key)
@@ -201,7 +199,7 @@
   (message "make emacs shiny... (⊃｡•́‿•̀｡)⊃━☆ﾟ.*･｡ﾟ")
   (enhance-ido)
   (enable-jump-to-defs)
-  (config-autocomplete)
+  (init-completion)
   (optimise-smex)
   (customise-editor)
   (show-modeline)
@@ -231,10 +229,9 @@
 (defun clj-refactor-hook ()
   (add-hook 'clojure-mode-hook #'clj-setup-refactoring))
 
-(add-to-list 'package-requirements 'company)
-(defun clj-setup-completion ()
-  (add-hook 'cider-repl-mode-hook #'company-mode)
-  (add-hook 'cider-mode-hook #'company-mode))
+(defun clj-fuzzy-completion ()
+  (add-hook 'cider-repl-mode-hook #'cider-company-enable-fuzzy-completion)
+  (add-hook 'cider-mode-hook #'cider-company-enable-fuzzy-completion))
 
 (defun clj-improved-indentation ()
   (require 'clojure-mode)
@@ -264,7 +261,7 @@
   (add-hook 'cider-mode-hook #'eldoc-mode)
   (add-hook 'cider-repl-mode-hook #'eldoc-mode)
 
-  (clj-setup-completion)
+  (clj-fuzzy-completion)
   (clj-setup-testing)
   (clj-improved-indentation)
   (clj-refactor-hook)
