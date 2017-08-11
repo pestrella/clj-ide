@@ -195,6 +195,10 @@
   (global-set-key (kbd "M-'") 'avy-goto-char-timer)
   (setq avy-background t))
 
+(add-to-list 'package-requirements 'projectile)
+(defun init-projectile ()
+  (projectile-mode))
+
 (defun shiny-emacs ()
   (message "make emacs shiny... (⊃｡•́‿•̀｡)⊃━☆ﾟ.*･｡ﾟ")
   (enhance-ido)
@@ -205,7 +209,8 @@
   (show-modeline)
   (init-themes)
   (init-which-key)
-  (init-avy))
+  (init-avy)
+  (init-projectile))
 
 (defun clj-setup-specs (arg)
   (interactive "P")
