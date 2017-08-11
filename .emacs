@@ -186,6 +186,17 @@
   (load-theme 'zenburn t)
   (message "for best results `export TERM=xterm-256color`"))
 
+(add-to-list 'package-requirements 'which-key)
+(defun init-which-key ()
+  (require 'which-key)
+  (which-key-mode))
+
+(add-to-list 'package-requirements 'avy)
+(defun init-avy ()
+  (require 'avy)
+  (global-set-key (kbd "M-'") 'avy-goto-char-timer)
+  (setq avy-background t))
+
 (defun shiny-emacs ()
   (message "make emacs shiny... (⊃｡•́‿•̀｡)⊃━☆ﾟ.*･｡ﾟ")
   (enhance-ido)
@@ -194,7 +205,9 @@
   (optimise-smex)
   (customise-editor)
   (show-modeline)
-  (init-themes))
+  (init-themes)
+  (init-which-key)
+  (init-avy))
 
 (defun clj-setup-specs (arg)
   (interactive "P")
@@ -272,3 +285,19 @@
 (add-hook 'after-init-hook #'print-elapsed-time)
 (add-hook 'after-init-hook #'clj-setup)
 (add-hook 'after-init-hook #'shiny-emacs)
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(avy-background t))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(avy-background-face ((t (:background "#3F3F3F" :foreground "#555555" :inverse-video nil))))
+ '(isearch ((t (:background "Pink" :foreground "#484848" :weight bold))))
+ '(isearch-fail ((t (:background "brightred" :foreground "brightwhite"))))
+ '(lazy-highlight ((t (:background "#5f5f5f" :foreground "white" :weight bold)))))
